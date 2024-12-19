@@ -1,67 +1,85 @@
 import './App.css'
-import MyButton from './utils'
+import { useState, useTransition } from 'react'
 
-function App() {
-  const user = {
-    name: 'Hedy Lamarr',
-    imageUrl: 'https://i.imgur.com/yXOvdOSs.jpg',
-    imageSize: 100,
-  };
-  const products = [
-    { title: 'Cabbage', id: 1 },
-    { title: 'Garlic', id: 2 },
-    { title: 'Apple', id: 3 },
-    { title: 'Orange', id: 4},
-    { title: 'Mango', id: 5}
-  ];
-  const listItems = products.map(product =>
-    <li key={product.id}>
-      {product.title}
-    </li>
-  );
-
-  const prods = [
-    { title: 'Cabbage', isFruit: false, id: 1 },
-    { title: 'Garlic', isFruit: false, id: 2 },
-    { title: 'Apple', isFruit: true, id: 3 },
-    { title: 'Orange', isFruit: true, id: 4},
-  ]
-  const list = prods.map(prod =>
-    <li key={prod.id}
-      style={{
-        color:prod.isFruit ? 'magenta' : 'darkgreen'
-      }}
-    >
-      {prod.title}
-    </li>
-  )
+function Square({ value, onSquareClick }) {
 
   return (
-    <>
-      <img
-      className="avatar"
-      src="https://i.imgur.com/1bX5QH6.jpg"
-      alt="Lin Lanying"
-      width={100}
-      height={100}
-      />
-      <h1>{user.name}</h1>
-        <img
-          className="avatar"
-          src={user.imageUrl}
-          alt={'Photo of ' + user.name}
-          style={{
-            width: user.imageSize,
-            height: user.imageSize
-          }}
-        />
-        
-        <ul>{listItems}</ul>
-        <ul>{list}</ul>
-        <MyButton /><br></br>
-        <MyButton />
-    </>
-  )
+    <button className='square'
+      onClick={onSquareClick}
+    >
+      {value}
+    </button>
+  )  
 }
 
-export default App
+  export default function Board() {
+    const [xIsNext, setXIsNext] = useState(true)
+    const [squares, setsquares] = useState(Array(9).fill(null));
+    
+    function handleClick(i) {
+      if (squares[i] ||calulateWinner(squares)) {
+        return;
+      }
+      const nextSquares = squares.slice()
+
+      if (xIsNext) {
+        nextSquares[i] = "X"
+      } else {
+        nextSquares[i] = "O"
+      }
+      
+      setsquares(nextSquares)
+      setXIsNext(!xIsNext)
+    }
+    const winner = calulateWinner(squares)
+    let status;
+
+    if (winner) {
+        status = "Winner: " + winner;
+    } else {
+        status = "Next player: " + (xIsNext ? "X" : "O");
+    }
+
+    return (
+      <>
+        <div className="status">{status}</div>
+        <div className='board-row'>
+          <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
+          <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
+          <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+        </div>
+        <div className='board-row'>
+          <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
+          <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
+          <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+        </div>
+        <div className='board-row'>
+          <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
+          <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
+          <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+        </div>
+      </>
+    )
+  }
+
+function calulateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ]
+
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i]
+  if (squares[a] && squares[a] == squares[b] && squares[a] ===squares[c]) {
+    return squares[a]
+  }
+      
+  }
+  return null
+}
